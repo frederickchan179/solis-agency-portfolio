@@ -1,7 +1,9 @@
 import { defineConfig, fontProviders } from 'astro/config'
 
 export default defineConfig({
-  site: 'https://solislab.com',
+  // Overridden by the GitHub Pages test deploy, which serves the site from a sub-path
+  site: process.env.SITE_URL ?? 'https://solislab.com',
+  base: process.env.BASE_PATH ?? '/',
   output: 'static',
   // Downloaded from Google at build time and served from this site
   fonts: [

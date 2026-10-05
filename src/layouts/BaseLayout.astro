@@ -72,8 +72,8 @@ const jsonLd = {
     <meta name='theme-color' content={site.themeColor} />
     <!-- Dark from the first paint, before the stylesheet loads -->
     <meta name='color-scheme' content='dark' />
-    <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
-    <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+    <link rel='icon' href={`${import.meta.env.BASE_URL}favicon.svg`} type='image/svg+xml' />
+    <link rel='apple-touch-icon' href={`${import.meta.env.BASE_URL}apple-touch-icon.png`} />
     <!-- Jost sets the h1 (the LCP element), so it is preloaded -->
     <Font cssVariable='--font-jost' preload />
     <Font cssVariable='--font-geist-mono' />

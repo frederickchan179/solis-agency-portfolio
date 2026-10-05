@@ -4,7 +4,7 @@ import CopyField from '@/components/ui/CopyField.astro'
 import { contactCards, office } from '@/data/contact'
 
 // Pre-sized WebP files (Astro's image service would need sharp as a dependency)
-const teamPhotoBase = '/images/team/team'
+const teamPhotoBase = `${import.meta.env.BASE_URL}images/team/team`
 ---
 
 <section class='section gutter' id='contact' aria-labelledby='contact-title'>
