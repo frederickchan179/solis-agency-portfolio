@@ -1,0 +1,215 @@
+---
+interface Props {
+  id: string
+  title: string
+  open?: boolean
+  // Two equal columns with a wider gap (job postings) instead of text-then-tags
+  evenColumns?: boolean
+}
+
+const { id, title, open = false, evenColumns = false } = Astro.props
+---
+
+<div class:list={['accordion', { 'is-open': open }]}>
+  <h3 class='accordion-heading'>
+    <button class='accordion-trigger' type='button' aria-expanded={open ? 'true' : 'false'} aria-controls={id}>
+      <span class='accordion-title'>{title}</span>
+      <span class='accordion-icon' aria-hidden='true'></span>
+    </button>
+  </h3>
+  <div class='accordion-panel' id={id}>
+    <div class='accordion-inner'>
+      <div class:list={['accordion-content', { 'has-even-columns': evenColumns }]}>
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initAccordions } from '@/scripts/accordion'
+
+  initAccordions()
+</script>
+
+<style>
+  /* Stacked layout: the row runs to the screen edges, so its lines, panel and highlight share one edge and the
+     text lines up with the section titles */
+  .accordion {
+    --row-pad: var(--pad);
+
+    margin-inline: calc(-1 * var(--pad));
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+
+  .accordion:first-child {
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 960px) {
+    .accordion {
+      --row-pad: clamp(4px, 1vw, 14px);
+
+      margin-inline: 0;
+    }
+  }
+
+  .accordion-heading {
+    margin: 0;
+    font: inherit;
+  }
+
+  .accordion-trigger {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+    text-align: left;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    color: inherit;
+    padding: clamp(22px, 3vw, 36px) var(--row-pad);
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Hover and open highlight: a sun-tinted band wipes in from the left */
+  .accordion-trigger::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgba(254, 195, 33, 0.14), rgba(254, 195, 33, 0) 70%);
+    clip-path: polygon(0 0, 0 0, -20% 100%, -20% 100%);
+    transition: clip-path 0.7s var(--ease);
+  }
+
+  .is-open .accordion-trigger::before {
+    clip-path: polygon(0 0, 120% 0, 100% 100%, -20% 100%);
+  }
+
+  /* Mouse only: on touch screens a tap leaves :hover stuck, which kept the band on a row just closed */
+  @media (hover: hover) {
+    .accordion-trigger:hover::before {
+      clip-path: polygon(0 0, 120% 0, 100% 100%, -20% 100%);
+    }
+
+    .accordion-trigger:hover .accordion-title {
+      transform: translateX(10px);
+    }
+  }
+
+  .accordion-title {
+    font: 500 clamp(24px, 3.6vw, 52px)/1.05 var(--display);
+    letter-spacing: -0.01em;
+    transition: transform 0.5s var(--ease);
+  }
+
+  /* Plus sign that turns into a minus when open */
+  .accordion-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    position: relative;
+    flex: none;
+    transition:
+      transform 0.5s var(--ease),
+      background 0.3s,
+      border-color 0.3s;
+  }
+
+  .accordion-icon::before,
+  .accordion-icon::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 1.5px;
+    margin: -0.75px 0 0 -6px;
+    background: currentColor;
+  }
+
+  .accordion-icon::after {
+    transform: rotate(90deg);
+    transition: transform 0.5s var(--ease);
+  }
+
+  .is-open .accordion-icon {
+    background: var(--sun);
+    border-color: var(--sun);
+    color: var(--navy);
+  }
+
+  .is-open .accordion-icon::after {
+    transform: rotate(0);
+  }
+
+  /* Animates open by growing the grid row from 0fr to 1fr */
+  .accordion-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.6s var(--ease);
+  }
+
+  .is-open .accordion-panel {
+    grid-template-rows: 1fr;
+  }
+
+  /* Hidden once closed so its links leave the tab order */
+  .accordion-inner {
+    overflow: hidden;
+    min-height: 0;
+    visibility: hidden;
+    transition: visibility 0s 0.6s;
+  }
+
+  .is-open .accordion-inner {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .accordion-content {
+    display: grid;
+    gap: 24px;
+    padding: clamp(20px, 2.4vw, 32px) var(--row-pad) clamp(40px, 4.5vw, 64px);
+    grid-template-columns: 1fr;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.3s,
+      transform 0.6s var(--ease);
+  }
+
+  /* The content fades in a beat after the panel starts to open, instead of being uncovered by its edge */
+  .is-open .accordion-content {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.12s;
+  }
+
+  @media (min-width: 860px) {
+    .accordion-content {
+      grid-template-columns: 1.1fr 1fr;
+    }
+
+    .has-even-columns {
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .accordion-trigger::before {
+      transition: none;
+    }
+
+    .accordion-content {
+      transform: none;
+    }
+  }
+</style>

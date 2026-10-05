@@ -1,0 +1,178 @@
+---
+import Button from '@/components/ui/Button.astro'
+import { values } from '@/data/values'
+
+// Pre-sized WebP files (Astro's image service would need sharp as a dependency)
+const photoBase = '/images/values'
+---
+
+<section class='section gutter' id='values' aria-labelledby='values-title'>
+  <div class='split'>
+    <div class='section-intro'>
+      <h2 class='section-title' id='values-title'>
+        Our
+        <br />
+        Values
+      </h2>
+    </div>
+    <div class='stack'>
+      <p class='section-text'>
+        We are a young and dynamic engineering team who believe in building character by solving hard problems under
+        aggressive constraints.
+      </p>
+      <div>
+        <Button href='#careers' arrow>
+          Join our team
+        </Button>
+      </div>
+    </div>
+  </div>
+  <div class='value-list' id='value-list'>
+    {values.map(({ title, text }, i) => (
+      <article class='value' data-photo-index={i}>
+        <div class='value-number' aria-hidden='true'>
+          {String(i + 1).padStart(2, '0')}
+        </div>
+        <h3>{title}</h3>
+        <p>{text}</p>
+      </article>
+    ))}
+  </div>
+  <div class='value-photo' id='value-photo' aria-hidden='true'>
+    <!-- Sources live in data-* so only the hover script loads them: browsers fetch even hidden lazy images -->
+    <div class='value-photo-frame'>
+      {values.map(({ photo }) => (
+        <img
+          data-src={`${photoBase}/${photo}-480.webp`}
+          data-srcset={`${photoBase}/${photo}-480.webp 480w, ${photoBase}/${photo}-960.webp 960w`}
+          sizes='(min-width: 1500px) 300px, 20vw'
+          width='480'
+          height='360'
+          alt=''
+          decoding='async'
+        />
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initValuePhotos } from '@/scripts/value-photos'
+
+  initValuePhotos()
+</script>
+
+<style>
+  .value-list {
+    margin-top: var(--block);
+    display: grid;
+  }
+
+  /* Stacked layout: the row runs to the screen edges, so its line and panel share one edge and the text lines up
+     with the section titles */
+  .value {
+    display: grid;
+    gap: 12px var(--gx);
+    grid-template-columns: 1fr;
+    padding-block: clamp(28px, 4vw, 48px);
+    border-top: 1px solid var(--line);
+    margin-inline: calc(-1 * var(--pad));
+    padding-inline: var(--pad);
+    background: var(--panel);
+  }
+
+  @media (min-width: 960px) {
+    .value {
+      grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.78fr) calc((100% - var(--gx)) / 2.2);
+      align-items: start;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+  }
+
+  /* Outlined number that fills with sun from the bottom; the stage script sets --fill as the row scrolls in */
+  .value-number {
+    font: 700 clamp(64px, 9vw, 140px)/0.8 var(--display);
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(243, 246, 251, 0.35);
+    background: linear-gradient(0deg, var(--sun) 0 var(--fill, 0%), transparent var(--fill, 0%));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  h3 {
+    margin: 0;
+    font: 500 clamp(28px, 3.4vw, 48px)/1.05 var(--display);
+    letter-spacing: -0.01em;
+  }
+
+  .value p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 52ch;
+  }
+
+  .value-photo {
+    display: none;
+  }
+
+  /* Mouse only: touch screens have no hover, so they keep the plain list */
+  @media (hover: hover) and (pointer: fine) {
+    .value-photo.is-ready {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 5;
+      width: clamp(220px, 20vw, 300px);
+      aspect-ratio: 4/3;
+      pointer-events: none;
+    }
+  }
+
+  /* Same slanted wipe as the buttons, opening from the left */
+  .value-photo-frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--navy);
+    clip-path: polygon(0 0, 0 0, -15% 100%, -15% 100%);
+    transition: clip-path 0.6s var(--ease);
+  }
+
+  .value-photo.is-visible .value-photo-frame {
+    clip-path: polygon(0 0, 115% 0, 100% 100%, -15% 100%);
+  }
+
+  .value-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    scale: 1.08;
+    transition:
+      opacity 0.3s,
+      scale 0.7s var(--ease);
+  }
+
+  .value-photo img.is-active {
+    opacity: 1;
+    scale: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .value-photo-frame {
+      transition: none;
+    }
+
+    .value-photo img {
+      scale: 1;
+      transition: opacity 0.2s;
+    }
+  }
+</style>

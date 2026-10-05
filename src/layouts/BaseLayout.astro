@@ -1,0 +1,126 @@
+---
+import { Font } from 'astro:assets'
+import '@/styles/global.css'
+import Cursor from '@/components/ui/Cursor.astro'
+import Sprite from '@/components/ui/Sprite.astro'
+import Stage from '@/components/ui/Stage.astro'
+import Toast from '@/components/ui/Toast.astro'
+import { site } from '@/data/site'
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const { title = site.title, description = site.description } = Astro.props
+const siteUrl = new URL('/', Astro.site).href
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const ogImage = new URL('/og.jpg', Astro.site).href
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}#org`,
+      name: site.legalName,
+      url: siteUrl,
+      logo: new URL('/logo.svg', Astro.site).href,
+      email: site.email,
+      telephone: site.phone,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: site.address.street,
+        addressLocality: site.address.locality,
+        addressCountry: site.address.country
+      }
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}#website`,
+      url: siteUrl,
+      name: site.name,
+      publisher: { '@id': `${siteUrl}#org` },
+      inLanguage: 'en'
+    }
+  ]
+}
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover' />
+    <title>{title}</title>
+    <meta name='description' content={description} />
+    <link rel='canonical' href={canonical} />
+    <meta property='og:type' content='website' />
+    <meta property='og:locale' content='en_US' />
+    <meta property='og:url' content={canonical} />
+    <meta property='og:site_name' content={site.title} />
+    <meta property='og:title' content={title} />
+    <meta property='og:description' content={description} />
+    <meta property='og:image' content={ogImage} />
+    <meta property='og:image:width' content='1200' />
+    <meta property='og:image:height' content='630' />
+    <meta property='og:image:alt' content='Solis Lab logotype' />
+    <meta name='twitter:card' content='summary_large_image' />
+    <meta name='twitter:title' content={title} />
+    <meta name='twitter:description' content={description} />
+    <meta name='twitter:image' content={ogImage} />
+    <meta name='theme-color' content={site.themeColor} />
+    <!-- Dark from the first paint, before the stylesheet loads -->
+    <meta name='color-scheme' content='dark' />
+    <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+    <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+    <!-- Jost sets the h1 (the LCP element), so it is preloaded -->
+    <Font cssVariable='--font-jost' preload />
+    <Font cssVariable='--font-geist-mono' />
+    <noscript>
+      <!-- Without JS the stage never starts: show the static logotype instead. !important beats the scoped styles -->
+      <style is:inline>
+        .logo-fallback {
+          display: grid !important;
+        }
+
+        #sun {
+          display: none !important;
+        }
+      </style>
+    </noscript>
+    <script type='application/ld+json' is:inline set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <Sprite />
+    <Stage />
+    <a class='skip-link' href='#what-we-do'>
+      Skip to content
+    </a>
+    <slot />
+    <Toast />
+    <Cursor />
+  </body>
+</html>
+
+<style>
+  /* Hidden above the viewport until focused with the keyboard */
+  .skip-link {
+    position: fixed;
+    z-index: 30;
+    left: 16px;
+    top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--sun);
+    color: var(--navy);
+    font: 600 13px/1 var(--mono);
+    text-decoration: none;
+    transform: translateY(-72px);
+    transition: transform 0.2s var(--ease);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+</style>

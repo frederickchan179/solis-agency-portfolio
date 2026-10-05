@@ -1,0 +1,99 @@
+---
+import ArrowIcon from '@/components/ui/ArrowIcon.astro'
+
+interface Props {
+  href: string
+  solid?: boolean
+  arrow?: boolean
+}
+
+const { href, solid = false, arrow = false } = Astro.props
+---
+
+<a class:list={['button', { 'button-solid': solid }]} href={href}>
+  <slot />
+  {arrow && ' '}
+  {arrow && <ArrowIcon />}
+</a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font: 600 13px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 22px;
+    border-radius: 999px;
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      color 0.32s var(--ease),
+      border-color 0.32s,
+      transform 0.16s var(--ease);
+  }
+
+  /* A slight press, so a tap or click feels received before the page moves */
+  .button:active {
+    transform: scale(0.97);
+  }
+
+  /* Hover fill: a slanted panel wipes in from the left */
+  .button::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    background: var(--sun);
+    clip-path: polygon(0 0, 0 0, -40% 100%, -40% 100%);
+    transition: clip-path 0.5s var(--ease);
+  }
+
+  .button-solid {
+    background: var(--sun);
+    color: var(--navy);
+    border-color: var(--sun);
+  }
+
+  .button-solid::before {
+    background: var(--day);
+  }
+
+  .button :global(.arrow-icon) {
+    transition: transform 0.32s var(--ease);
+  }
+
+  /* Mouse only: on touch screens a tap leaves :hover stuck */
+  @media (hover: hover) {
+    .button:hover {
+      color: var(--navy);
+      border-color: var(--sun);
+    }
+
+    .button:hover::before {
+      clip-path: polygon(0 0, 140% 0, 100% 100%, -40% 100%);
+    }
+
+    .button:hover :global(.arrow-icon) {
+      transform: translateX(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button::before {
+      transition: none;
+    }
+
+    .button:active {
+      transform: none;
+    }
+  }
+</style>

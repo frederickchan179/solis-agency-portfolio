@@ -1,0 +1,26 @@
+---
+import Careers from '@/components/sections/Careers.astro'
+import Contact from '@/components/sections/Contact.astro'
+import Hero from '@/components/sections/Hero.astro'
+import LetsTalk from '@/components/sections/LetsTalk.astro'
+import Marquee from '@/components/sections/Marquee.astro'
+import SiteFooter from '@/components/sections/SiteFooter.astro'
+import SiteHeader from '@/components/sections/SiteHeader.astro'
+import Values from '@/components/sections/Values.astro'
+import WhatWeDo from '@/components/sections/WhatWeDo.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+---
+
+<BaseLayout>
+  <SiteHeader />
+  <main id='top'>
+    <Hero />
+    <WhatWeDo />
+    <Marquee />
+    <LetsTalk />
+    <Values />
+    <Careers />
+    <Contact />
+  </main>
+  <SiteFooter />
+</BaseLayout>

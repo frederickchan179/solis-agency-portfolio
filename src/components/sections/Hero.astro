@@ -1,0 +1,178 @@
+---
+import Button from '@/components/ui/Button.astro'
+import Clock from '@/components/ui/Clock.astro'
+import Logo from '@/components/ui/Logo.astro'
+import { site } from '@/data/site'
+
+// Headline words rise in one by one (--i); highlighted words are in sun yellow
+const words = [
+  { text: 'We' },
+  { text: 'build' },
+  { text: 'award', em: true },
+  { text: 'winning', em: true },
+  { text: 'websites.' }
+]
+---
+
+<section class='hero gutter' aria-labelledby='hero-title'>
+  <div class='logo-fallback' aria-hidden='true'>
+    <Logo />
+  </div>
+  <div>
+    <div class='split'>
+      <h1 id='hero-title'>
+        <span class='visually-hidden'>Solis Lab. </span>
+        {words.map(({ text, em }, i) => (
+          <>
+            {i > 0 && ' '}
+            <span class='word'>
+              <span style={`--i:${i}`}>{em ? <em>{text}</em> : text}</span>
+            </span>
+          </>
+        ))}
+      </h1>
+      <div class='hero-aside stack'>
+        <p>{site.description}</p>
+        <div class='button-row'>
+          <Button href='#what-we-do' solid arrow>
+            What We Do
+          </Button>
+          <Button href='#contact'>Get In Touch</Button>
+        </div>
+      </div>
+    </div>
+    <div class='hero-meta label' aria-hidden='true'>
+      <span>
+        Hanoi <Clock /> GMT+7
+      </span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 24px;
+    padding-block: 120px 28px;
+  }
+
+  /* Static logotype, shown only without WebGL (the stage script adds .no-gl; the layout's noscript covers no JS) */
+  .logo-fallback {
+    flex: 1;
+    display: none;
+    place-items: center;
+    color: var(--day);
+  }
+
+  :global(.no-gl) .logo-fallback {
+    display: grid;
+  }
+
+  .logo-fallback :global(svg) {
+    width: min(92vw, 1200px);
+    height: auto;
+  }
+
+  h1 {
+    margin: 0;
+    font: 600 clamp(34px, 4.4vw, 72px)/1 var(--display);
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  /* Each word is clipped by its wrapper and rises into view, staggered by --i */
+  .word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.06em;
+  }
+
+  .word > span {
+    display: inline-block;
+    animation: rise 1s var(--ease) both;
+    animation-delay: calc(0.25s + var(--i) * 70ms);
+  }
+
+  em {
+    font-style: normal;
+    color: var(--sun);
+  }
+
+  @keyframes rise {
+    from {
+      transform: translateY(105%);
+    }
+
+    to {
+      transform: none;
+    }
+  }
+
+  .hero-aside {
+    max-width: 46ch;
+  }
+
+  /* The rest of the hero follows the headline in. The description is the LCP element, so it starts faint rather than
+     transparent: Chrome skips fully transparent text as an LCP candidate, which would hold LCP back until it shows */
+  .hero-aside p {
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(16px, 1.25vw, 19px);
+    animation: settle 0.9s var(--ease) 0.45s both;
+  }
+
+  .hero-aside .button-row {
+    animation: fade-up 0.9s var(--ease) 0.6s both;
+  }
+
+  @keyframes settle {
+    from {
+      opacity: 0.1;
+      transform: translateY(12px);
+    }
+
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px 24px;
+    margin-top: clamp(28px, 4vw, 48px);
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    animation: fade-up 0.9s var(--ease) 0.75s both;
+  }
+
+  .hero-meta span {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word > span,
+    .hero-aside p,
+    .hero-aside .button-row,
+    .hero-meta {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+import AccordionItem from '@/components/ui/AccordionItem.astro'
+import Button from '@/components/ui/Button.astro'
+import TagList from '@/components/ui/TagList.astro'
+import { services } from '@/data/services'
+---
+
+<section class='section gutter' id='what-we-do' aria-labelledby='what-we-do-title'>
+  <div class='section-intro'>
+    <h2 class='section-title' id='what-we-do-title'>
+      What
+      <br />
+      We Do
+    </h2>
+    <p class='lede'>
+      We work closely with independent digital agencies around the world to bring visually stunning designs and
+      interactive concepts to life.
+    </p>
+    <div class='intro-action'>
+      <Button href='#schedule' arrow>
+        Work With Us
+      </Button>
+    </div>
+  </div>
+
+  <div class='services'>
+    {services.map((service, i) => (
+      <AccordionItem id={service.id} title={service.title} open={i === 0}>
+        <p class='service-text'>{service.text}</p>
+        <TagList items={service.tags} />
+      </AccordionItem>
+    ))}
+  </div>
+</section>
+
+<style>
+  .intro-action {
+    margin-top: 20px;
+  }
+
+  .services {
+    margin-top: var(--block);
+    max-width: 1100px;
+  }
+
+  @media (min-width: 960px) {
+    /* Narrower column on wide screens, leaving room on the right for the particle planet */
+    .services {
+      max-width: min(1100px, 62%);
+    }
+
+    .services :global(.accordion-title) {
+      font-size: clamp(24px, 2.7vw, 44px);
+    }
+  }
+
+  .service-text {
+    margin: 0;
+    color: var(--muted);
+    max-width: 56ch;
+  }
+</style>

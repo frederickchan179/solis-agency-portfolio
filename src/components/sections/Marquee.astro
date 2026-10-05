@@ -1,0 +1,69 @@
+---
+import { stack } from '@/data/services'
+---
+
+<div class='marquee' aria-hidden='true'>
+  <div class='marquee-track' id='marquee-track'>
+    {[0, 1].map(() => (
+      <span>
+        {stack.map((item) => (
+          <>
+            {item}
+            <i />
+          </>
+        ))}
+      </span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    border-block: 1px solid var(--line);
+    background: var(--sun);
+    color: var(--navy);
+    transform: rotate(-2deg) scale(1.04);
+    margin-block: 20px;
+  }
+
+  /* Two copies of the list scroll by half their width for a seamless loop; the stage script sets --skew from scroll speed */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 38s linear infinite;
+    transform: skewX(var(--skew, 0deg));
+  }
+
+  span {
+    font: 700 clamp(28px, 4.4vw, 64px)/1 var(--display);
+    letter-spacing: 0;
+    text-transform: uppercase;
+    padding: 18px 0;
+    white-space: nowrap;
+  }
+
+  /* Dot separator between items */
+  i {
+    font-style: normal;
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    margin: 0 0.45em;
+    border-radius: 50%;
+    background: var(--navy);
+    vertical-align: 0.12em;
+  }
+
+  @keyframes marquee-scroll {
+    to {
+      translate: -50% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+</style>

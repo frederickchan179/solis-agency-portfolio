@@ -1,0 +1,158 @@
+---
+import Button from '@/components/ui/Button.astro'
+import Logo from '@/components/ui/Logo.astro'
+import { navLinks } from '@/data/site'
+---
+
+<header class='site-header gutter' id='site-header'>
+  <a class='home-link' href='#top' aria-label='Solis Lab home'>
+    <Logo />
+  </a>
+  <nav aria-label='Primary'>
+    <ul class='nav-links'>
+      {navLinks.map(({ href, label }) => (
+        <li>
+          <a href={href}>{label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <Button href='#contact' arrow>
+    Get In Touch
+  </Button>
+</header>
+
+<script>
+  import { initNav } from '@/scripts/nav'
+
+  initNav()
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: calc(18px + env(safe-area-inset-top, 0px));
+    padding-bottom: 18px;
+    border-bottom: 1px solid transparent;
+    transition:
+      background 0.32s var(--ease),
+      border-color 0.32s,
+      backdrop-filter 0.32s;
+    animation: header-in 0.8s var(--ease) 0.1s both;
+  }
+
+  @keyframes header-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* The stage script adds .is-solid once the hero has scrolled away */
+  .site-header.is-solid {
+    background: rgba(0, 14, 31, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom-color: var(--line);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .site-header.is-solid {
+      background: var(--night);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  .home-link {
+    display: inline-flex;
+    color: var(--day);
+    line-height: 0;
+  }
+
+  .home-link :global(svg) {
+    height: 26px;
+    width: auto;
+  }
+
+  .nav-links {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 28px;
+    font: 500 12px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nav-links a {
+    position: relative;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.16s;
+  }
+
+  /* The current section's link: brighter, with a small sun dot under it */
+  .nav-links a[aria-current] {
+    color: var(--ink);
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--sun);
+    transform: scale(0);
+    transition: transform 0.32s var(--ease);
+  }
+
+  .nav-links a[aria-current]::after {
+    transform: none;
+  }
+
+  @media (hover: hover) {
+    .nav-links a:hover {
+      color: var(--ink);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header {
+      animation: none;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .site-header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+    }
+
+    .nav-links {
+      display: flex;
+    }
+
+    .site-header > :global(.button) {
+      justify-self: end;
+    }
+  }
+</style>

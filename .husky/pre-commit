@@ -1,0 +1,3 @@
+echo "🚓 Wait, let me quickly check your commit..."
+npx lint-staged
+npx astro check

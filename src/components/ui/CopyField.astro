@@ -1,0 +1,84 @@
+---
+interface Props {
+  href: string
+  text: string
+}
+
+const { href, text } = Astro.props
+---
+
+<div class='copy-field'>
+  <a href={href}>{text}</a>
+  <button class='copy-button' type='button' data-copy={text} aria-label={`Copy ${text}`}>
+    Copy
+  </button>
+</div>
+
+<script>
+  import { initCopy } from '@/scripts/copy'
+
+  initCopy()
+</script>
+
+<style>
+  .copy-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 4px 4px 4px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font: 500 14px/1.2 var(--mono);
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+
+  a {
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    padding-block: 8px;
+  }
+
+  .copy-button {
+    font: 500 11px/1 var(--mono);
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex: none;
+    background: none;
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 12px;
+    min-height: 36px;
+    cursor: pointer;
+    transition: transform 0.16s var(--ease);
+  }
+
+  .copy-button:active {
+    transform: scale(0.94);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .copy-button:active {
+      transform: none;
+    }
+  }
+
+  /* Mouse only: on touch screens a tap leaves :hover stuck */
+  @media (hover: hover) {
+    .copy-field:hover {
+      border-color: var(--sun);
+    }
+
+    a:hover {
+      color: var(--sun);
+    }
+
+    .copy-button:hover {
+      color: var(--navy);
+      background: var(--sun);
+    }
+  }
+</style>

@@ -1,0 +1,177 @@
+/* Layout: fixed WebGL particle stage behind a one-page scroll. The particles are the brand:
+   wordmark (hero) -> planet (what we do) -> terrain at sunrise (values). Content stays the original site copy.
+   This file holds only design tokens, base element styles and the layout pieces shared by several sections;
+   everything else lives in each component's scoped <style>. */
+:root {
+  --night: #000e1f;
+  --navy: #001e3f;
+  --dusk: #03369c;
+  --day: #f3f6fb;
+  --sun: #fec321;
+  --sun-deep: #fbb116;
+  --ink: #f3f6fb;
+  --muted: #93a6bf;
+  --line: rgba(243, 246, 251, 0.14);
+  --panel: rgba(0, 14, 31, 0.78);
+  /* --font-* come from the self-hosted fonts in astro.config.ts, fallbacks included */
+  --display: var(--font-jost);
+  --body: var(--font-jost);
+  --mono: var(--font-geist-mono);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* layout: one content column (capped on very large screens) and one two-column split for every section */
+  --maxw: 1600px;
+  --pad: clamp(16px, 4vw, 56px);
+  --gx: clamp(28px, 4vw, 64px);
+  --split: minmax(0, 1.2fr) minmax(0, 1fr);
+  --block: clamp(48px, 6vw, 88px);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  scrollbar-color: rgba(147, 166, 191, 0.35) var(--night);
+}
+
+section,
+[id] {
+  scroll-margin-top: 84px;
+}
+
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--ink);
+  font: 400 17px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+a {
+  color: inherit;
+}
+
+/* Avoids a lone word on the last line of a paragraph */
+p {
+  text-wrap: pretty;
+}
+
+a,
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--sun);
+  color: var(--navy);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Page content sits above the fixed particle stage */
+main,
+header,
+footer {
+  position: relative;
+  z-index: 2;
+}
+
+section {
+  position: relative;
+}
+
+.gutter {
+  padding-inline: max(var(--pad), (100% - var(--maxw))/2);
+}
+
+.label {
+  font: 500 12px/1.2 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.label b {
+  color: var(--sun);
+  font-weight: 500;
+}
+
+.section {
+  padding-block: clamp(64px, 8vw, 120px);
+}
+
+.section-title {
+  margin: 0;
+  font: 700 clamp(44px, 8.4vw, 136px)/0.9 var(--display);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.section-intro {
+  display: grid;
+  gap: 8px;
+  max-width: 760px;
+}
+
+.lede {
+  max-width: 52ch;
+  margin: 24px 0 0;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.section-text {
+  margin: 0;
+  max-width: 44ch;
+  font-size: clamp(17px, 1.4vw, 21px);
+}
+
+/* Title on the left, text and actions on the right (stacked on small screens) */
+.split {
+  display: grid;
+  gap: 28px var(--gx);
+  align-items: end;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 960px) {
+  .split {
+    grid-template-columns: var(--split);
+  }
+}
+
+.stack {
+  display: grid;
+  gap: 22px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

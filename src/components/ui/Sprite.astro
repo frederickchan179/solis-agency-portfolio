@@ -1,0 +1,25 @@
+---
+// Shared SVG symbols: the logotype and the arrow used on buttons
+import { LOGO_DOT_PATH, LOGO_LETTERS, LOGO_O_PATH, LOGO_VIEWBOX } from '@/data/logo'
+---
+
+<svg width='0' height='0' style='position:absolute' aria-hidden='true'>
+  <symbol id='logo' viewBox={LOGO_VIEWBOX}>
+    <g fill='currentColor'>
+      {LOGO_LETTERS.map((letterPath) => (
+        <path d={letterPath} />
+      ))}
+    </g>
+    <path fill='var(--sun)' d={LOGO_O_PATH}></path>
+    <path fill='var(--sun)' d={LOGO_DOT_PATH}></path>
+  </symbol>
+  <symbol id='arrow' viewBox='0 0 16 16'>
+    <path
+      d='M2 8h11M8.5 3.5 13 8l-4.5 4.5'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='1.6'
+      stroke-linecap='square'
+    ></path>
+  </symbol>
+</svg>

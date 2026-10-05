@@ -1,0 +1,113 @@
+---
+import AccordionItem from '@/components/ui/AccordionItem.astro'
+import Button from '@/components/ui/Button.astro'
+import TagList from '@/components/ui/TagList.astro'
+import type { Job } from '@/data/jobs'
+
+interface Props {
+  job: Job
+}
+
+const { job } = Astro.props
+---
+
+<AccordionItem id={job.id} title={job.title} evenColumns>
+  <div class='job-column'>
+    <div>
+      <h4>Top 3 Reasons to Join Us</h4>
+      <TagList items={job.reasons} />
+    </div>
+    <div>
+      <h4>The Job</h4>
+      <p>{job.job}</p>
+    </div>
+    <div>
+      <h4>You are perfect for this position if:</h4>
+      <ul class='bullet-list'>
+        {job.perfectIf.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <h4>Your Skills and Experience</h4>
+      <ul class='bullet-list'>
+        {job.skills.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class='job-column'>
+    <div>
+      <h4>Why You’ll Love Working Here</h4>
+      {job.why.map((text) => (
+        <p>{text}</p>
+      ))}
+    </div>
+    <div>
+      <h4>We also provide the following benefits:</h4>
+      <ul class='bullet-list'>
+        {job.benefits.map(({ label, text }) => (
+          <li>
+            {label && (
+              <>
+                <strong>{label}</strong>{' '}
+              </>
+            )}
+            {text}
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <Button href='mailto:careers@solislab.com' solid arrow>
+        Send your CV
+      </Button>
+    </div>
+  </div>
+</AccordionItem>
+
+<style>
+  .job-column {
+    display: grid;
+    gap: 22px;
+    align-content: start;
+  }
+
+  h4 {
+    margin: 0 0 10px;
+    font: 500 11px/1 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sun);
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 56ch;
+  }
+
+  p + p {
+    margin-top: 14px;
+  }
+
+  .bullet-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--muted);
+    display: grid;
+    gap: 10px;
+    line-height: 1.55;
+  }
+
+  .bullet-list li::marker {
+    color: var(--sun);
+  }
+
+  strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+</style>

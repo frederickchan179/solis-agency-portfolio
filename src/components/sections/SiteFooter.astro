@@ -1,0 +1,100 @@
+---
+import ArrowIcon from '@/components/ui/ArrowIcon.astro'
+import { DOT_CENTER, DOT_RADIUS, LOGO_LETTERS, LOGO_O_PATH, LOGO_VIEWBOX } from '@/data/logo'
+import { site } from '@/data/site'
+
+// Inline (not the sprite) so the scripts can reach each letter, the "o" planet and the i-dot sun
+const year = new Date().getFullYear()
+---
+
+<footer class='site-footer gutter' id='site-footer'>
+  <svg class='footer-logo' id='footer-logo' viewBox={LOGO_VIEWBOX} aria-hidden='true'>
+    <g fill='currentColor'>
+      {LOGO_LETTERS.map((letterPath) => (
+        <path d={letterPath} />
+      ))}
+    </g>
+    <path id='footer-planet' fill='var(--sun)' d={LOGO_O_PATH}></path>
+    <circle id='footer-sun' fill='var(--sun)' cx={DOT_CENTER[0]} cy={DOT_CENTER[1]} r={DOT_RADIUS}></circle>
+  </svg>
+  <div class='footer-bar label'>
+    <span>
+      © <span id='copyright-year'>{year}</span> {site.legalName} All rights reserved.
+    </span>
+    <a href='#top'>
+      Back To Top <ArrowIcon up />
+    </a>
+  </div>
+</footer>
+
+<script>
+  import { initFooterGame } from '@/scripts/footer-game'
+  import { initFooterPlanet } from '@/scripts/footer-planet'
+
+  initFooterPlanet()
+  initFooterGame()
+  // Keep the copyright year current between deploys
+  document.getElementById('copyright-year')!.textContent = String(new Date().getFullYear())
+</script>
+
+<style>
+  .site-footer {
+    padding-block: 0 28px;
+    overflow: hidden;
+    border-top: 1px solid var(--line);
+    background: var(--night);
+    cursor: crosshair;
+  }
+
+  .footer-logo {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: var(--block) 0 clamp(28px, 3vw, 40px);
+    overflow: visible;
+    color: var(--day);
+    user-select: none;
+    touch-action: pan-y;
+  }
+
+  /* Letters pivot on their baseline when knocked; the game adds .is-lit to a letter it hits */
+  .footer-logo g path {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transition: fill 0.35s;
+  }
+
+  .footer-logo g path.is-lit {
+    fill: var(--sun);
+  }
+
+  /* The game's effects canvas is created by its script, so it has no scoped attribute */
+  .site-footer :global(.footer-effects) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .footer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .footer-bar a {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (hover: hover) {
+    .footer-bar a:hover {
+      color: var(--ink);
+    }
+  }
+</style>

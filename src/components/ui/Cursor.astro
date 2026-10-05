@@ -1,0 +1,134 @@
+---
+// The custom cursor is built by the script (fine pointers only), so there is no markup here
+---
+
+<script>
+  import { initCursor } from '@/scripts/cursor'
+
+  initCursor()
+</script>
+
+<!-- Global: the cursor elements are created by the script, so scoped styles could not reach them -->
+<style is:global>
+  .has-custom-cursor,
+  .has-custom-cursor * {
+    cursor: none !important;
+  }
+
+  .cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 40;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .cursor.is-visible {
+    opacity: 1;
+  }
+
+  .cursor i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 50%;
+    will-change: translate;
+  }
+
+  .cursor-dot {
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    background: var(--sun);
+    box-shadow: 0 0 12px 2px rgba(254, 195, 33, 0.45);
+    transition: scale 0.3s var(--ease);
+  }
+
+  .cursor-ring {
+    width: 64px;
+    height: 64px;
+    margin: -32px 0 0 -32px;
+    border: 1.5px solid rgba(243, 246, 251, 0.5);
+    scale: 0.6;
+    display: grid;
+    place-items: center;
+    font: 600 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-style: normal;
+    color: var(--navy);
+    transition:
+      scale 0.45s var(--ease),
+      rotate 0.6s var(--ease),
+      border-color 0.3s,
+      background-color 0.3s;
+  }
+
+  .cursor[data-state='link'] .cursor-ring {
+    scale: 1;
+    border-color: var(--sun);
+    background-color: rgba(254, 195, 33, 0.08);
+  }
+
+  .cursor[data-state='link'] .cursor-dot {
+    scale: 0.5;
+  }
+
+  .cursor[data-state='label'] .cursor-ring {
+    scale: 1.35;
+    border-color: var(--sun);
+    background-color: var(--sun);
+  }
+
+  .cursor[data-state='label'] .cursor-dot {
+    scale: 0;
+  }
+
+  .cursor[data-state='orbit'] .cursor-ring {
+    scale: 1.7 0.55;
+    rotate: -34deg;
+    border-color: rgba(254, 195, 33, 0.8);
+  }
+
+  .cursor[data-state='aim'] .cursor-ring {
+    scale: 0.45;
+    border-color: rgba(254, 195, 33, 0.9);
+    border-style: dashed;
+  }
+
+  .cursor.on-light .cursor-dot {
+    background: var(--navy);
+    box-shadow:
+      0 0 0 2px var(--sun),
+      0 0 0 3.5px rgba(0, 30, 63, 0.35);
+  }
+
+  .cursor.on-light[data-state='link'] .cursor-dot {
+    scale: 0.75;
+  }
+
+  .cursor.on-light[data-state='link'] .cursor-ring {
+    border-color: var(--navy);
+  }
+
+  .cursor.is-pressed .cursor-ring {
+    scale: 0.45;
+  }
+
+  .cursor[data-state='link'].is-pressed .cursor-ring {
+    scale: 0.85;
+  }
+
+  @media (forced-colors: active) {
+    .cursor {
+      display: none;
+    }
+
+    .has-custom-cursor,
+    .has-custom-cursor * {
+      cursor: auto !important;
+    }
+  }
+</style>

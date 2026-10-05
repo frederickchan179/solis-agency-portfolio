@@ -1,0 +1,24 @@
+---
+interface Props {
+  up?: boolean
+}
+
+const { up = false } = Astro.props
+---
+
+<svg class:list={['arrow-icon', { 'is-up': up }]} aria-hidden='true'>
+  <use href='#arrow'></use>
+</svg>
+
+<style>
+  .arrow-icon {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    vertical-align: -2px;
+  }
+
+  .is-up {
+    transform: rotate(-90deg);
+  }
+</style>

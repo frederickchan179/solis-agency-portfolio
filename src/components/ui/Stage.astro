@@ -1,0 +1,225 @@
+---
+// Fixed WebGL particle stage behind the page, plus the glow that tracks its sun and the client markets on its globe
+import { markets, studio } from '@/data/markets'
+---
+
+<canvas id='stage' aria-hidden='true'></canvas>
+<div id='sun' aria-hidden='true'></div>
+<!-- Decorative: the script draws each arc's path and places each pin on the globe -->
+<div id='globe-pins' aria-hidden='true'>
+  <svg class='globe-arcs'>
+    {markets.map(({ longitude, latitude }, index) => (
+      <g class='globe-arc' data-longitude={longitude} data-latitude={latitude} style={`--arc-index: ${index}`}>
+        <path class='globe-arc-line' />
+        <path class='globe-arc-pulse' pathLength='1' />
+      </g>
+    ))}
+  </svg>
+  <ul class='globe-pin-list'>
+    {[studio, ...markets].map(({ name, longitude, latitude, labelSide }) => (
+      <li
+        class='globe-pin'
+        data-studio={name === studio.name ? '' : undefined}
+        data-longitude={longitude}
+        data-latitude={latitude}
+        data-label-side={labelSide}
+      >
+        <span class='globe-pin-dot'></span>
+        <span class='globe-pin-label'>{name}</span>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<script>
+  import { initStage } from '@/scripts/stage'
+
+  initStage()
+</script>
+
+<style>
+  #stage {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  #sun {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(
+      circle,
+      rgba(254, 195, 33, 0.34) 0,
+      rgba(254, 195, 33, 0.12) 22%,
+      rgba(254, 195, 33, 0.04) 45%,
+      rgba(254, 195, 33, 0) 70%
+    );
+    will-change: transform;
+  }
+
+  /* Below the two-column layout the globe sits behind the copy, so the markets only show once it stands beside it */
+  #globe-pins {
+    display: none;
+  }
+
+  @media (min-width: 960px) {
+    #globe-pins {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: block;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+    }
+  }
+
+  .globe-arcs {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .globe-arc path {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .globe-arc-line {
+    stroke: rgba(243, 246, 251, 0.3);
+    stroke-width: 1;
+  }
+
+  /* A short dash of sunlight travels from the studio to each market, one after another */
+  .globe-arc-pulse {
+    stroke: var(--sun);
+    stroke-width: 1.5;
+    stroke-dasharray: 0.12 1;
+    stroke-dashoffset: 0.12;
+    animation: arc-pulse 3.6s var(--ease) infinite;
+    animation-delay: calc(var(--arc-index) * 0.5s);
+  }
+
+  @keyframes arc-pulse {
+    to {
+      stroke-dashoffset: -1;
+    }
+  }
+
+  .globe-pin-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The script places each pin on the globe and fades it toward the rim */
+  .globe-pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .globe-pin-dot {
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ink);
+    box-shadow: 0 0 0 3px rgba(243, 246, 251, 0.16);
+  }
+
+  [data-studio] .globe-pin-dot {
+    background: var(--sun);
+    box-shadow: 0 0 0 3px rgba(254, 195, 33, 0.24);
+  }
+
+  /* The studio sends out a slow ring, like a signal */
+  [data-studio] .globe-pin-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--sun);
+    border-radius: 50%;
+    animation: studio-signal 2.4s var(--ease) infinite;
+  }
+
+  @keyframes studio-signal {
+    from {
+      transform: scale(0.6);
+      opacity: 1;
+    }
+
+    to {
+      transform: scale(3.2);
+      opacity: 0;
+    }
+  }
+
+  .globe-pin-label {
+    position: absolute;
+    left: 14px;
+    top: 0;
+    transform: translateY(-50%);
+    padding: 5px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel);
+    font: 500 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--ink);
+    transition: opacity 0.3s;
+  }
+
+  /* The script hides a label that would collide with a more prominent pin's */
+  .is-label-hidden .globe-pin-label {
+    opacity: 0;
+  }
+
+  [data-studio] .globe-pin-label {
+    border-color: rgba(254, 195, 33, 0.5);
+    color: var(--sun);
+  }
+
+  .has-label-left .globe-pin-label {
+    left: auto;
+    right: 14px;
+  }
+
+  /* The stage script adds .no-gl when WebGL is unavailable */
+  :global(.no-gl) #sun,
+  :global(.no-gl) #globe-pins {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .globe-arc-pulse,
+    [data-studio] .globe-pin-dot::after {
+      display: none;
+    }
+
+    .globe-pin-label {
+      transition: none;
+    }
+  }
+</style>
