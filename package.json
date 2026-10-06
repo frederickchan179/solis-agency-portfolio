@@ -24,6 +24,7 @@
     "@astrojs/check": "^0.9.10",
     "@lionstone-digital/eslint-config-typescript": "^0.1.3",
     "@lionstone-digital/prettier-config": "^0.0.7",
+    "@types/node": "^26.6.4",
     "eslint": "^10.12.0",
     "eslint-plugin-astro": "^3.2.1",
     "husky": "^9.1.7",
