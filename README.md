@@ -64,3 +64,7 @@ cache.
 
 `pnpm build` outputs a fully static site in `dist/` that any static host can serve. The production URL is set in
 `astro.config.ts` (`site`), which canonical URLs, Open Graph tags, `robots.txt` and `sitemap.xml` are built from.
+
+The live site runs on Coolify from the `Dockerfile`: it builds the site, then serves `dist/` with Caddy on port 80
+(`Caddyfile` sets the cache headers). The `SITE_URL` build argument sets `site`; it defaults to
+`https://solis-agency.fredchan.dev`.

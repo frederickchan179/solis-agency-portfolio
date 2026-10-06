@@ -1,0 +1,6 @@
+.git
+.github
+.astro
+.scratch
+node_modules
+dist

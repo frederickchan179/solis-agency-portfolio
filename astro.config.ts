@@ -1,7 +1,7 @@
 import { defineConfig, fontProviders } from 'astro/config'
 
 export default defineConfig({
-  // Overridden by the GitHub Pages test deploy, which serves the site from a sub-path
+  // The Dockerfile sets SITE_URL to the domain the Coolify deploy serves
   site: process.env.SITE_URL ?? 'https://solislab.com',
   base: process.env.BASE_PATH ?? '/',
   output: 'static',
