@@ -58,6 +58,7 @@ interface FrameState {
   sunPosition: Vec3
   globeSpin: number
   scrollTop: number
+  layerScroll: number
   weights: StageWeights
   globe: Globe
   brightness: number
@@ -98,7 +99,8 @@ export function initStage() {
   const attributes = getAttributeLocations(gl, program, ATTRIBUTE_NAMES)
   const buffers: Partial<Record<AttributeName, WebGLBuffer>> = {}
 
-  const viewport = { width: 0, height: 0, dpr: 1 }
+  const viewport = { width: 0, height: 0, canvasHeight: 0, dpr: 1 }
+  const maxCanvasSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) as number
   let maxDpr = MAX_DPR
   const frameTiming = { count: 0, totalMs: 0 }
   // Rebuilt on resize; null until the first build
@@ -135,16 +137,17 @@ export function initStage() {
   let frameRequest = 0
 
   function sizeCanvas() {
-    viewport.dpr = Math.min(devicePixelRatio || 1, maxDpr)
+    viewport.dpr = Math.min(devicePixelRatio || 1, maxDpr, maxCanvasSize / viewport.canvasHeight)
     canvas.width = Math.round(viewport.width * viewport.dpr)
-    canvas.height = Math.round(viewport.height * viewport.dpr)
+    canvas.height = Math.round(viewport.canvasHeight * viewport.dpr)
     gl.viewport(0, 0, canvas.width, canvas.height)
   }
 
   function build() {
     viewport.width = innerWidth
-    // The canvas is 100lvh tall: mobile browser bars collapsing or expanding never change its size
-    viewport.height = canvas.clientHeight || innerHeight
+    // The canvas is two large viewports tall (Stage.astro): mobile browser bars collapsing never change its size
+    viewport.canvasHeight = canvas.clientHeight || innerHeight * 2
+    viewport.height = viewport.canvasHeight / 2
     sizeCanvas()
 
     // documentElement.clientHeight is the small viewport (bars showing), where the hero is laid out
@@ -326,7 +329,10 @@ export function initStage() {
 
   // The DOM glow follows the 3D sun in the logotype stage, sits at the globe's light source in the globe stage and
   // grows over the field. It hides while the planet is in front of the sun.
-  function updateSunGlow(scene: Scene, { sunPosition, scrollTop, weights, globe, brightness, transition }: FrameState) {
+  function updateSunGlow(
+    scene: Scene,
+    { sunPosition, scrollTop, layerScroll, weights, globe, brightness, transition }: FrameState
+  ) {
     const { height, width } = viewport
     const sunOnScreen = project(scene, sunPosition, scrollTop)
     const planetOnScreen = project(scene, [scene.planet[0], scene.planet[1], 0], scrollTop)
@@ -342,7 +348,8 @@ export function initStage() {
       (sunOnScreen.scale * weights.logo + (1 - weights.logo)) * (1 + weights.field * 3.2 + weights.globe * 0.6)
     const introFade = intro < 0.6 ? clamp((intro - 0.35) * 4) : brightness
 
-    sunGlow.style.transform = `translate(${width / 2 + x}px, ${height / 2 - y}px) scale(${scale})`
+    // the glow sits in the stage layer, so it scrolls with the logotype just like the canvas
+    sunGlow.style.transform = `translate(${width / 2 + x}px, ${layerScroll + height / 2 - y}px) scale(${scale})`
     sunGlow.style.opacity = String(introFade * clamp(1 - transition * 1.4) * (1 - eclipsed * weights.logo))
   }
 
@@ -351,6 +358,7 @@ export function initStage() {
     {
       time,
       scrollTop,
+      layerScroll,
       weights,
       globe,
       brightness,
@@ -378,6 +386,8 @@ export function initStage() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     gl.uniform2f(uniforms.uResolution, viewport.width, viewport.height)
+    gl.uniform1f(uniforms.uCanvasHeight, viewport.canvasHeight)
+    gl.uniform1f(uniforms.uViewportOffset, (viewport.canvasHeight - viewport.height) / 2 - layerScroll)
     gl.uniform1f(uniforms.uDpr, viewport.dpr)
     gl.uniform1f(uniforms.uTime, time)
     gl.uniform1f(uniforms.uIntro, intro)
@@ -460,7 +470,9 @@ export function initStage() {
     if (!reduceMotion) globeDrift += GLOBE_DRIFT * dt * weights.globe
 
     const globeSpin = globeDrift + scrollTop * GLOBE_SCROLL_TURN
-    const frameState = { sunPosition, globeSpin, scrollTop, weights, globe, brightness, transition }
+    // how far the stage layer has scrolled with the page before it sticks (Stage.astro)
+    const layerScroll = Math.min(scrollTop, height)
+    const frameState = { sunPosition, globeSpin, scrollTop, layerScroll, weights, globe, brightness, transition }
 
     updateSunGlow(scene, frameState)
     drawParticles(scene, { ...frameState, time, introOrbit })
@@ -508,7 +520,7 @@ export function initStage() {
   addEventListener('resize', () => {
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(() => {
-      if (innerWidth !== viewport.width || canvas.clientHeight !== viewport.height) build()
+      if (innerWidth !== viewport.width || canvas.clientHeight !== viewport.canvasHeight) build()
     }, 180)
   })
 

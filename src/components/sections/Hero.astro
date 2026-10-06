@@ -50,13 +50,17 @@ const words = [
 </section>
 
 <style>
+  /* Fills the large viewport, so the next section does not show through a see-through bottom browser bar (iOS
+     Safari). The extra bottom padding (the bar's height) keeps the copy above the bar while it shows. */
   .hero {
     min-height: 100svh;
+    min-height: 100lvh;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     gap: 24px;
     padding-block: 120px 28px;
+    padding-block-end: calc(28px + 100lvh - 100svh);
   }
 
   /* Static logotype, shown only without WebGL (the stage script adds .no-gl; the layout's noscript covers no JS) */

@@ -7,6 +7,8 @@ export type AttributeName = (typeof ATTRIBUTE_NAMES)[number]
 
 export const UNIFORM_NAMES = [
   'uResolution',
+  'uCanvasHeight',
+  'uViewportOffset',
   'uTime',
   'uIntro',
   'uScroll',
@@ -62,7 +64,9 @@ export const VERTEX_SHADER = /* glsl */ `
   attribute float aKind;  // PARTICLE_KIND
 
   // Per frame
-  uniform vec2 uResolution;
+  uniform vec2 uResolution;           // viewport size; the stage works in viewport coordinates, origin at its centre
+  uniform float uCanvasHeight;        // the canvas is taller than the viewport (see Stage.astro)
+  uniform float uViewportOffset;      // height of the viewport centre above the canvas centre
   uniform float uTime, uIntro, uScroll, uDpr;
   uniform float uBrightness;          // overall dimming (careers section, stage transitions)
   uniform float uScrollSpeed;         // eased scroll velocity, shakes the points
@@ -183,7 +187,13 @@ export const VERTEX_SHADER = /* glsl */ `
 
     float focal = uCameraDistance*wLogo + GLOBE_FOCAL*wGlobe + 900.*wField;
     float persp = focal/max(focal - p.z, 60.);
-    gl_Position = vec4(p.xy*persp/(uResolution*.5), clamp(-p.z/4000., -1., 1.), 1.);
+    vec2 projected = p.xy*persp;
+    gl_Position = vec4(
+      projected.x/(uResolution.x*.5),
+      (projected.y + uViewportOffset)/(uCanvasHeight*.5),
+      clamp(-p.z/4000., -1., 1.),
+      1.
+    );
     float sea = wGlobe*(1. - aLand), land = wGlobe*aLand;
     float pointSize = min((1.25 + aRand*1.25 + (isSun + isStar)*.6 - isOrbitPath*.55 - sea*.5 + land*.4)*uDpr*persp, 7.*uDpr);
 
