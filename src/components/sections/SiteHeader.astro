@@ -69,6 +69,15 @@ import { navLinks } from '@/data/site'
     border-bottom-color: var(--line);
   }
 
+  /* A blur over the stage is resampled on every frame the particles move, which costs phones smooth scrolling */
+  @media (hover: none) {
+    .site-header.is-solid {
+      background: rgba(0, 14, 31, 0.92);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
   @media (prefers-reduced-transparency: reduce) {
     .site-header.is-solid {
       background: var(--night);

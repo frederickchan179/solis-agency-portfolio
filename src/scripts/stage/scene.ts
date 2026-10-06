@@ -60,8 +60,9 @@ const STARS = {
 // Target number of letter points: more on bigger screens
 const letterPointTarget = (layout: Layout) => (layout.isMobile ? 24000 : layout.viewportWidth > 1600 ? 76000 : 60000)
 
-// Where the logotype sits on screen and at what scale
-function computeLayout(viewportWidth: number, viewportHeight: number) {
+// Where the logotype sits on screen and at what scale. The canvas covers the large viewport (mobile browser bars
+// hidden), but the logotype is sized and placed in the small one, so it sits where the hero is with the bars showing.
+function computeLayout(viewportWidth: number, viewportHeight: number, visibleHeight: number) {
   const isMobile = viewportWidth < MOBILE_BREAKPOINT
   const labOffset = isMobile
     ? { dx: (SOLIS_WIDTH - LAB_WIDTH) / 2 - LAB_START_X, dy: STACKED_LINE_GAP }
@@ -77,7 +78,7 @@ function computeLayout(viewportWidth: number, viewportHeight: number) {
   const contentWidth = Math.min(viewportWidth, MAX_CONTENT_WIDTH)
   const scale = Math.min(
     (contentWidth * (isMobile ? 0.8 : 0.86)) / logoWidth,
-    (viewportHeight * (isMobile ? 0.36 : 0.3)) / logoHeight
+    (visibleHeight * (isMobile ? 0.36 : 0.3)) / logoHeight
   )
   const padding = Math.ceil(scale * 6)
 
@@ -97,8 +98,8 @@ function computeLayout(viewportWidth: number, viewportHeight: number) {
     // band position of logo unit (0, 0)
     offsetX: (viewportWidth - logoWidth * scale) / 2,
     offsetY: padding,
-    // height of the logotype centre above the viewport centre; also the tilt axis
-    pivotY: viewportHeight * (isMobile ? 0.15 : 0.11)
+    // height of the logotype centre above the canvas centre; also the tilt axis
+    pivotY: viewportHeight / 2 - visibleHeight * (isMobile ? 0.35 : 0.39)
   }
 }
 
@@ -346,8 +347,8 @@ function buildMorphTargets(count: number, viewportWidth: number, viewportHeight:
 
 export type Scene = ReturnType<typeof buildScene>
 
-export function buildScene(viewportWidth: number, viewportHeight: number) {
-  const layout = computeLayout(viewportWidth, viewportHeight)
+export function buildScene(viewportWidth: number, viewportHeight: number, visibleHeight: number) {
+  const layout = computeLayout(viewportWidth, viewportHeight, visibleHeight)
   const raster = rasterizeLogo(layout)
   const spacing = letterPointSpacing(layout, raster.sharpAlpha)
   const extrusion = 4.5 * layout.scale

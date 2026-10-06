@@ -38,11 +38,15 @@ import { markets, studio } from '@/data/markets'
 </script>
 
 <style>
+  /* Sized to the large viewport, not inset: 0. On phones the browser bars collapse and expand while scrolling; a
+     canvas that followed them would stretch and redraw on every scroll direction change. */
   #stage {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100lvh;
     z-index: 0;
     display: block;
     pointer-events: none;
@@ -76,7 +80,11 @@ import { markets, studio } from '@/data/markets'
   @media (min-width: 960px) {
     #globe-pins {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100lvh;
       z-index: 1;
       display: block;
       overflow: hidden;

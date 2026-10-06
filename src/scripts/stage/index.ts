@@ -28,6 +28,8 @@ import { createProgram, getAttributeLocations, getUniformLocations, uploadAttrib
 // animation, where the bowls of "a" and "b" dock round the planet as rings.
 
 const MAX_DPR = 1.5
+// Adaptive resolution: if frames after the intro average slower than this, render at 1x from then on
+const SLOW_FRAME = { sampleSize: 90, averageMs: 1000 / 45 }
 const INTRO_DURATION = 1600 // ms
 const SUN_INTRO = { delay: 300, duration: 3000 } // ms: the sun's first orbit, slower than the particles settling
 const STEER_TIMEOUT = 2200 // ms the sun keeps following the pointer after it stops moving
@@ -97,6 +99,8 @@ export function initStage() {
   const buffers: Partial<Record<AttributeName, WebGLBuffer>> = {}
 
   const viewport = { width: 0, height: 0, dpr: 1 }
+  let maxDpr = MAX_DPR
+  const frameTiming = { count: 0, totalMs: 0 }
   // Rebuilt on resize; null until the first build
   let builtScene: Scene | null = null
 
@@ -130,15 +134,25 @@ export function initStage() {
   let lastFrameTime = startTime
   let frameRequest = 0
 
-  function build() {
-    viewport.width = innerWidth
-    viewport.height = innerHeight
-    viewport.dpr = Math.min(devicePixelRatio || 1, MAX_DPR)
+  function sizeCanvas() {
+    viewport.dpr = Math.min(devicePixelRatio || 1, maxDpr)
     canvas.width = Math.round(viewport.width * viewport.dpr)
     canvas.height = Math.round(viewport.height * viewport.dpr)
     gl.viewport(0, 0, canvas.width, canvas.height)
+  }
 
-    const scene = buildScene(viewport.width, viewport.height)
+  function build() {
+    viewport.width = innerWidth
+    // The canvas is 100lvh tall: mobile browser bars collapsing or expanding never change its size
+    viewport.height = canvas.clientHeight || innerHeight
+    sizeCanvas()
+
+    // documentElement.clientHeight is the small viewport (bars showing), where the hero is laid out
+    const scene = buildScene(
+      viewport.width,
+      viewport.height,
+      Math.min(document.documentElement.clientHeight || viewport.height, viewport.height)
+    )
 
     for (const name of ATTRIBUTE_NAMES) {
       const { data, size } = scene.attributes[name]
@@ -402,10 +416,12 @@ export function initStage() {
   function frame(now: number) {
     const scene = currentScene()
     const time = reduceMotion ? 4 : (now - startTime) / 1000
-    const dt = Math.min(0.05, (now - lastFrameTime) / 1000)
+    const frameMs = now - lastFrameTime
+    const dt = Math.min(0.05, frameMs / 1000)
     const scrollTop = scrollY
 
     lastFrameTime = now
+    if (!reduceMotion && intro >= 1 && frameTiming.count < SLOW_FRAME.sampleSize) adaptResolution(frameMs)
     if (!reduceMotion) intro = clamp((now - startTime) / INTRO_DURATION) // time based, so slow devices match
 
     // reduced motion draws a still frame and redraws only after a scroll or resize
@@ -463,6 +479,18 @@ export function initStage() {
     if (!document.hidden) frameRequest = requestAnimationFrame(frame)
   }
 
+  // Fill rate is the cost that grows with screen resolution, so a phone that cannot keep up renders at 1x. Resizing
+  // clears the canvas, so this runs before the frame draws.
+  function adaptResolution(frameMs: number) {
+    frameTiming.count += 1
+    frameTiming.totalMs += Math.min(frameMs, 100) // a single long hitch should not decide it
+    if (frameTiming.count < SLOW_FRAME.sampleSize || viewport.dpr <= 1) return
+    if (frameTiming.totalMs / frameTiming.count > SLOW_FRAME.averageMs) {
+      maxDpr = 1
+      sizeCanvas()
+    }
+  }
+
   const start = () => {
     cancelAnimationFrame(frameRequest)
     lastFrameTime = performance.now()
@@ -473,21 +501,14 @@ export function initStage() {
     if (!document.hidden) start()
   })
 
-  // Rebuild on a real resize; a small height change (mobile browser bars) only resizes the canvas
-  let builtWidth = innerWidth
+  // Rebuild only on a real resize (width or large viewport). Mobile browsers fire resize whenever their bars collapse
+  // or expand while scrolling; resizing the canvas then would clear it and shift the whole stage.
   let resizeTimer: ReturnType<typeof setTimeout> | undefined
 
   addEventListener('resize', () => {
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(() => {
-      if (innerWidth !== builtWidth || Math.abs(innerHeight - viewport.height) > 160) {
-        builtWidth = innerWidth
-        build()
-      } else {
-        viewport.height = innerHeight
-        canvas.height = Math.round(viewport.height * viewport.dpr)
-        gl.viewport(0, 0, canvas.width, canvas.height)
-      }
+      if (innerWidth !== viewport.width || canvas.clientHeight !== viewport.height) build()
     }, 180)
   })
 
