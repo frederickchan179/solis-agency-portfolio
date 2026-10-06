@@ -224,7 +224,8 @@ import { markets, studio } from '@/data/markets'
     right: 14px;
   }
 
-  /* The stage script adds .no-gl when WebGL is unavailable */
+  /* The stage script adds .no-gl when WebGL is unavailable or too slow; a context it gave up on would paint black */
+  :global(.no-gl) #stage,
   :global(.no-gl) #sun,
   :global(.no-gl) #globe-pins {
     display: none;

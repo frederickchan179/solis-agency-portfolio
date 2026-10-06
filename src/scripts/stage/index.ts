@@ -29,7 +29,8 @@ import { createProgram, getAttributeLocations, getUniformLocations, uploadAttrib
 
 const MAX_DPR = 1.5
 // Adaptive resolution: if frames after the intro average slower than this, render at 1x from then on
-const SLOW_FRAME = { sampleSize: 90, averageMs: 1000 / 45 }
+// (giveUpMs: slower than this even at 1x, the stage stops for the static logotype)
+const SLOW_FRAME = { sampleSize: 90, averageMs: 1000 / 45, giveUpMs: 1000 / 15 }
 const INTRO_DURATION = 1600 // ms
 const SUN_INTRO = { delay: 300, duration: 3000 } // ms: the sun's first orbit, slower than the particles settling
 const STEER_TIMEOUT = 2200 // ms the sun keeps following the pointer after it stops moving
@@ -135,6 +136,7 @@ export function initStage() {
   let startTime = performance.now()
   let lastFrameTime = startTime
   let frameRequest = 0
+  let stopped = false
 
   function sizeCanvas() {
     viewport.dpr = Math.min(devicePixelRatio || 1, maxDpr, maxCanvasSize / viewport.canvasHeight)
@@ -432,6 +434,7 @@ export function initStage() {
 
     lastFrameTime = now
     if (!reduceMotion && intro >= 1 && frameTiming.count < SLOW_FRAME.sampleSize) adaptResolution(frameMs)
+    if (stopped) return
     if (!reduceMotion) intro = clamp((now - startTime) / INTRO_DURATION) // time based, so slow devices match
 
     // reduced motion draws a still frame and redraws only after a scroll or resize
@@ -496,14 +499,27 @@ export function initStage() {
   function adaptResolution(frameMs: number) {
     frameTiming.count += 1
     frameTiming.totalMs += Math.min(frameMs, 100) // a single long hitch should not decide it
-    if (frameTiming.count < SLOW_FRAME.sampleSize || viewport.dpr <= 1) return
-    if (frameTiming.totalMs / frameTiming.count > SLOW_FRAME.averageMs) {
+    if (frameTiming.count < SLOW_FRAME.sampleSize) return
+
+    const averageMs = frameTiming.totalMs / frameTiming.count
+
+    if (averageMs > SLOW_FRAME.giveUpMs) stopStage()
+    else if (averageMs > SLOW_FRAME.averageMs && viewport.dpr > 1) {
       maxDpr = 1
       sizeCanvas()
     }
   }
 
+  // A device too slow even at 1x (no GPU acceleration the context check caught) gets the static logotype instead of
+  // a stage that blocks the main thread on every frame
+  function stopStage() {
+    stopped = true
+    cancelAnimationFrame(frameRequest)
+    document.documentElement.classList.add('no-gl')
+  }
+
   const start = () => {
+    if (stopped) return
     cancelAnimationFrame(frameRequest)
     lastFrameTime = performance.now()
     frameRequest = requestAnimationFrame(frame)
@@ -520,6 +536,7 @@ export function initStage() {
   addEventListener('resize', () => {
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(() => {
+      if (stopped) return
       if (innerWidth !== viewport.width || canvas.clientHeight !== viewport.canvasHeight) build()
     }, 180)
   })
@@ -537,14 +554,18 @@ export function initStage() {
 
 // The WebGL context with the particle program, or null when WebGL or the shaders are unavailable
 function createContext(canvas: HTMLCanvasElement) {
+  // Without a usable GPU the browser renders WebGL in software on the main thread, where every frame is a long task;
+  // the static logotype serves those visitors better. Chrome does not fail the caveat for SwiftShader, hence the
+  // renderer check.
   const gl = canvas.getContext('webgl', {
     antialias: false,
     alpha: false,
     depth: true,
-    powerPreference: 'high-performance'
+    powerPreference: 'high-performance',
+    failIfMajorPerformanceCaveat: true
   })
 
-  if (!gl) return null
+  if (!gl || isSoftwareRenderer(gl)) return null
   try {
     return { gl, program: createProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER) }
   } catch (error) {
@@ -553,4 +574,18 @@ function createContext(canvas: HTMLCanvasElement) {
 
     return null
   }
+}
+
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software/i
+
+function isSoftwareRenderer(gl: WebGLRenderingContext) {
+  const renderer = String(gl.getParameter(gl.RENDERER))
+
+  // Chrome and Safari mask RENDERER and expose the real one only through the debug extension, which Firefox has
+  // deprecated, so the extension is only asked for when the plain value is masked
+  if (renderer !== 'WebKit WebGL') return SOFTWARE_RENDERER.test(renderer)
+
+  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+
+  return debugInfo !== null && SOFTWARE_RENDERER.test(String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)))
 }
