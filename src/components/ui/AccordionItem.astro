@@ -192,6 +192,11 @@ const { id, title, open = false, evenColumns = false } = Astro.props
     transition-delay: 0.12s;
   }
 
+  /* Set for a single frame while a row above the tapped one shuts at once (see accordion.ts) */
+  .is-snapping :is(.accordion-panel, .accordion-inner, .accordion-content) {
+    transition: none;
+  }
+
   @media (min-width: 860px) {
     .accordion-content {
       grid-template-columns: 1.1fr 1fr;
