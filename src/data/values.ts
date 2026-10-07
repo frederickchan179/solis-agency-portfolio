@@ -5,6 +5,11 @@ export interface Value {
   photo: string
 }
 
+export const valuesIntro = {
+  title: ['Our', 'Values'],
+  text: 'We are a young and dynamic engineering team who believe in building character by solving hard problems under aggressive constraints.'
+}
+
 export const values: Value[] = [
   {
     title: 'Be brutally honest',

@@ -1,21 +1,17 @@
 ---
 import Button from '@/components/ui/Button.astro'
+import SectionTitle from '@/components/ui/SectionTitle.astro'
+import { email } from '@/data/contact'
+import { letsTalk } from '@/data/services'
 ---
 
 <section class='section gutter' id='schedule' aria-labelledby='lets-talk-title'>
   <div class='split'>
-    <h2 class='section-title' id='lets-talk-title'>
-      Let's
-      <br />
-      talk
-    </h2>
+    <SectionTitle id='lets-talk-title' lines={letsTalk.title} />
     <div class='stack'>
-      <p class='section-text'>
-        Need a hand with any of the above? Shoot us a short email and we'll jump on a quick call or chat with you to
-        discuss your engineering needs.
-      </p>
+      <p class='section-text'>{letsTalk.text}</p>
       <div>
-        <Button href='mailto:collab@solislab.com' solid arrow>
+        <Button href={`mailto:${email.partnership}`} solid arrow>
           Schedule a call
         </Button>
       </div>

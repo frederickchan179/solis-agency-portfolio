@@ -2,23 +2,22 @@
 import JobPosting from '@/components/sections/JobPosting.astro'
 import RetreatVideo from '@/components/sections/RetreatVideo.astro'
 import Button from '@/components/ui/Button.astro'
-import { jobs } from '@/data/jobs'
+import SectionTitle from '@/components/ui/SectionTitle.astro'
+import { email } from '@/data/contact'
+import { careersIntro, jobs } from '@/data/jobs'
 ---
 
 <section class='section gutter' id='careers' aria-labelledby='careers-title'>
   <div class='split'>
     <div class='section-intro'>
-      <h2 class='section-title' id='careers-title'>
-        Careers
-      </h2>
+      <SectionTitle id='careers-title' lines={careersIntro.title} />
     </div>
     <div class='stack'>
       <p class='section-text'>
-        If you share the same values with us and are looking for a new opportunity to grow, look no further. This is
-        where you can <strong class='slogan'>be the leader you are</strong>.
+        {careersIntro.text} <strong class='slogan'>{careersIntro.slogan}</strong>.
       </p>
       <div class='button-row'>
-        <Button href='mailto:careers@solislab.com' solid arrow>
+        <Button href={`mailto:${email.careers}`} solid arrow>
           Send your CV
         </Button>
         <Button href='#positions'>See Open Positions</Button>

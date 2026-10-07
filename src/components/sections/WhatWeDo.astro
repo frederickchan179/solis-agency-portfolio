@@ -1,21 +1,15 @@
 ---
 import AccordionItem from '@/components/ui/AccordionItem.astro'
 import Button from '@/components/ui/Button.astro'
+import SectionTitle from '@/components/ui/SectionTitle.astro'
 import TagList from '@/components/ui/TagList.astro'
-import { services } from '@/data/services'
+import { services, whatWeDo } from '@/data/services'
 ---
 
 <section class='section gutter' id='what-we-do' aria-labelledby='what-we-do-title'>
   <div class='section-intro'>
-    <h2 class='section-title' id='what-we-do-title'>
-      What
-      <br />
-      We Do
-    </h2>
-    <p class='lede'>
-      We work closely with independent digital agencies around the world to bring visually stunning designs and
-      interactive concepts to life.
-    </p>
+    <SectionTitle id='what-we-do-title' lines={whatWeDo.title} />
+    <p class='lede'>{whatWeDo.text}</p>
     <div class='intro-action'>
       <Button href='#schedule' arrow>
         Work With Us

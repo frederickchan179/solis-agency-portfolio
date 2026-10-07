@@ -2,16 +2,7 @@
 import Button from '@/components/ui/Button.astro'
 import Clock from '@/components/ui/Clock.astro'
 import Logo from '@/components/ui/Logo.astro'
-import { site } from '@/data/site'
-
-// Headline words rise in one by one (--i); highlighted words are in sun yellow
-const words = [
-  { text: 'We' },
-  { text: 'build' },
-  { text: 'award', em: true },
-  { text: 'winning', em: true },
-  { text: 'websites.' }
-]
+import { headline, site } from '@/data/site'
 ---
 
 <section class='hero gutter' aria-labelledby='hero-title'>
@@ -22,11 +13,11 @@ const words = [
     <div class='split'>
       <h1 id='hero-title'>
         <span class='visually-hidden'>Solis Lab. </span>
-        {words.map(({ text, em }, i) => (
+        {headline.map(({ text, highlight }, i) => (
           <>
             {i > 0 && ' '}
             <span class='word'>
-              <span style={`--i:${i}`}>{em ? <em>{text}</em> : text}</span>
+              <span style={`--i:${i}`}>{highlight ? <em>{text}</em> : text}</span>
             </span>
           </>
         ))}

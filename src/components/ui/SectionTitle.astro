@@ -1,0 +1,17 @@
+---
+interface Props {
+  id: string
+  lines: string[]
+}
+
+const { id, lines } = Astro.props
+---
+
+<h2 class='section-title' id={id}>
+  {lines.map((line, i) => (
+    <>
+      {i > 0 && <br />}
+      {line}
+    </>
+  ))}
+</h2>

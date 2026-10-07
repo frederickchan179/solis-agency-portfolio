@@ -1,7 +1,8 @@
 ---
 import Clock from '@/components/ui/Clock.astro'
 import CopyField from '@/components/ui/CopyField.astro'
-import { contactCards, office } from '@/data/contact'
+import SectionTitle from '@/components/ui/SectionTitle.astro'
+import { contactCards, contactIntro, office } from '@/data/contact'
 
 // Pre-sized WebP files (Astro's image service would need sharp as a dependency)
 const teamPhotoBase = `${import.meta.env.BASE_URL}images/team/team`
@@ -22,15 +23,8 @@ const teamPhotoBase = `${import.meta.env.BASE_URL}images/team/team`
     />
   </figure>
   <div class='section-intro contact-intro'>
-    <h2 class='section-title' id='contact-title'>
-      Get In
-      <br />
-      Touch
-    </h2>
-    <p class='lede'>
-      If you have any inquiry or questions, feel free to contact us via email. Our team will respond to you within 12
-      hours.
-    </p>
+    <SectionTitle id='contact-title' lines={contactIntro.title} />
+    <p class='lede'>{contactIntro.text}</p>
   </div>
   <div class='contact-grid'>
     {contactCards.map(({ label, title, links }) => (
@@ -48,16 +42,22 @@ const teamPhotoBase = `${import.meta.env.BASE_URL}images/team/team`
       <h3 class='label'>
         {office.label} <Clock /> GMT+7
       </h3>
-      <address>{office.address}</address>
+      <address>
+        {office.street}, {office.locality}
+      </address>
     </div>
   </div>
 </section>
 
 <style>
   /* Full-bleed band that fades into the page at the top and bottom; the title rises over its faded lower edge */
+  .section {
+    --photo-height: clamp(260px, 44vw, 680px);
+  }
+
   .team-photo {
     margin: 0 calc(50% - 50vw);
-    height: clamp(260px, 44vw, 680px);
+    height: var(--photo-height);
     mask-image: linear-gradient(to bottom, transparent, black 20%, black 55%, transparent);
   }
 
@@ -70,7 +70,7 @@ const teamPhotoBase = `${import.meta.env.BASE_URL}images/team/team`
 
   .contact-intro {
     position: relative;
-    margin-top: calc(clamp(260px, 44vw, 680px) * -0.28);
+    margin-top: calc(var(--photo-height) * -0.28);
   }
 
   /* 1px gaps over a line-coloured background draw the borders between cards */

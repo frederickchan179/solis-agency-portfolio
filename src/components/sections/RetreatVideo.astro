@@ -1,11 +1,5 @@
 ---
-// Poster only; the Vimeo player loads on click
-const video = {
-  id: '362505643',
-  title: '2019 Retreat - FLC Sam Son',
-  poster:
-    'https://i.vimeocdn.com/video/817407159-f7e3494c115f9ed95552ee3ef928eae02aea581ce8df974f5933d44c213810c2-d_1280?region=us'
-}
+import { retreatVideo } from '@/data/jobs'
 ---
 
 <figure class='retreat split'>
@@ -13,21 +7,18 @@ const video = {
     <button
       class='video-play'
       type='button'
-      data-vimeo={video.id}
+      data-vimeo={retreatVideo.id}
       data-cursor='Play'
-      aria-label={`Play video: ${video.title}`}
+      aria-label={`Play video: ${retreatVideo.title}`}
     >
-      <img src={video.poster} alt='' width='1280' height='720' loading='lazy' decoding='async' />
+      <img src={retreatVideo.poster} alt='' width='1280' height='720' loading='lazy' decoding='async' />
       <span class='video-play-icon' aria-hidden='true'></span>
     </button>
   </div>
   <figcaption>
     <span class='label'>Latest video</span>
-    <h3>{video.title}</h3>
-    <p>
-      Marking our 3rd year operating in Hanoi, we celebrate our team's growing family by inviting everyone (and their
-      kids!) on a relaxing summer trip.
-    </p>
+    <h3>{retreatVideo.title}</h3>
+    <p>{retreatVideo.caption}</p>
   </figcaption>
 </figure>
 

@@ -5,6 +5,7 @@ import Cursor from '@/components/ui/Cursor.astro'
 import Sprite from '@/components/ui/Sprite.astro'
 import Stage from '@/components/ui/Stage.astro'
 import Toast from '@/components/ui/Toast.astro'
+import { email, office, phone } from '@/data/contact'
 import { site } from '@/data/site'
 
 interface Props {
@@ -26,13 +27,13 @@ const jsonLd = {
       name: site.legalName,
       url: siteUrl,
       logo: new URL('/logo.svg', Astro.site).href,
-      email: site.email,
-      telephone: site.phone,
+      email: email.general,
+      telephone: phone,
       address: {
         '@type': 'PostalAddress',
-        streetAddress: site.address.street,
-        addressLocality: site.address.locality,
-        addressCountry: site.address.country
+        streetAddress: office.street,
+        addressLocality: office.locality,
+        addressCountry: office.country
       }
     },
     {

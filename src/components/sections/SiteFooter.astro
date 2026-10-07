@@ -3,11 +3,11 @@ import ArrowIcon from '@/components/ui/ArrowIcon.astro'
 import { DOT_CENTER, DOT_RADIUS, LOGO_LETTERS, LOGO_O_PATH, LOGO_VIEWBOX } from '@/data/logo'
 import { site } from '@/data/site'
 
-// Inline (not the sprite) so the scripts can reach each letter, the "o" planet and the i-dot sun
 const year = new Date().getFullYear()
 ---
 
 <footer class='site-footer gutter' id='site-footer'>
+  <!-- Inline (not the sprite) so the scripts can reach each letter, the "o" planet and the i-dot sun -->
   <svg class='footer-logo' id='footer-logo' viewBox={LOGO_VIEWBOX} aria-hidden='true'>
     <g fill='currentColor'>
       {LOGO_LETTERS.map((letterPath) => (

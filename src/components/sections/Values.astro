@@ -1,6 +1,7 @@
 ---
 import Button from '@/components/ui/Button.astro'
-import { values } from '@/data/values'
+import SectionTitle from '@/components/ui/SectionTitle.astro'
+import { values, valuesIntro } from '@/data/values'
 
 // Pre-sized WebP files (Astro's image service would need sharp as a dependency)
 const photoBase = `${import.meta.env.BASE_URL}images/values`
@@ -9,17 +10,10 @@ const photoBase = `${import.meta.env.BASE_URL}images/values`
 <section class='section gutter' id='values' aria-labelledby='values-title'>
   <div class='split'>
     <div class='section-intro'>
-      <h2 class='section-title' id='values-title'>
-        Our
-        <br />
-        Values
-      </h2>
+      <SectionTitle id='values-title' lines={valuesIntro.title} />
     </div>
     <div class='stack'>
-      <p class='section-text'>
-        We are a young and dynamic engineering team who believe in building character by solving hard problems under
-        aggressive constraints.
-      </p>
+      <p class='section-text'>{valuesIntro.text}</p>
       <div>
         <Button href='#careers' arrow>
           Join our team

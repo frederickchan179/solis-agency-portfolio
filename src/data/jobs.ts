@@ -1,3 +1,19 @@
+export const careersIntro = {
+  title: ['Careers'],
+  text: 'If you share the same values with us and are looking for a new opportunity to grow, look no further. This is where you can',
+  slogan: 'be the leader you are'
+}
+
+// Poster only; the Vimeo player loads on click
+export const retreatVideo = {
+  id: '362505643',
+  title: '2019 Retreat - FLC Sam Son',
+  poster:
+    'https://i.vimeocdn.com/video/817407159-f7e3494c115f9ed95552ee3ef928eae02aea581ce8df974f5933d44c213810c2-d_1280?region=us',
+  caption:
+    "Marking our 3rd year operating in Hanoi, we celebrate our team's growing family by inviting everyone (and their kids!) on a relaxing summer trip."
+}
+
 export interface Benefit {
   label?: string
   text: string

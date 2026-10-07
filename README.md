@@ -38,7 +38,7 @@ The pre-commit hook runs Prettier and ESLint on staged files, then `astro check`
 ```text
 public/                 Static files served as-is (favicon, og.jpg, logo.svg, pre-sized images/)
 src/
-  pages/                index.astro (the page), robots.txt.ts and sitemap.xml.ts (generated from `site`)
+  pages/                index.astro (the page); robots.txt.ts, sitemap.xml.ts and llms.txt.ts (generated from `site` and the data)
   layouts/              BaseLayout.astro: <head>, SEO meta, JSON-LD, fonts, global UI
   components/sections/  One component per page section, in page order
   components/ui/        Reusable pieces (Button, AccordionItem, Stage, Cursor, Toast...)

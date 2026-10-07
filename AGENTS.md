@@ -20,7 +20,8 @@ motion rules are in [DESIGN.md](DESIGN.md). Read both before larger changes.
 
 - Copy is taken word for word from the previous solislab.com. Do not rewrite, "improve" or invent copy, headings,
   claims, numbers, tech stacks, client names or testimonials. Any new or changed copy needs the site owner's approval.
-- All copy lives in `src/data/*.ts`. Components render data; do not hard-code copy in them.
+- All copy (headings, paragraphs, lists) lives in `src/data/*.ts`. Components render data; do not hard-code copy in
+  them. Short interface labels (button text, the job posting's field headings, alt text) stay in the component.
 - Section ids `what-we-do`, `schedule`, `values`, `careers` and `contact` match the old site's anchors. Keep them, so
   existing links still work.
 

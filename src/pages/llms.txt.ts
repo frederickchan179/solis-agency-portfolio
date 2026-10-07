@@ -30,7 +30,7 @@ export const GET: APIRoute = ({ site: siteUrl }) => {
     `## [Get In Touch](${sectionUrl('#contact')})`,
     '',
     ...contactCards.map((card) => `- ${card.label}: ${card.links.map((link) => link.text).join(', ')}`),
-    `- ${office.label}: ${office.address}`,
+    `- ${office.label}: ${office.street}, ${office.locality}`,
     ''
   ]
 

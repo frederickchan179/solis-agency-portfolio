@@ -24,6 +24,7 @@ const TRAIL_LENGTH = 10
 const REGROW_DURATION = 0.45
 const SPARK = { friction: 0.94, gravity: 120 }
 const SHOCKWAVE_DURATION = 0.5
+const KNOCK_DURATION = 700
 
 const BLAST = {
   miss: { sparks: 16, speed: 140, waveRadius: 5 },
@@ -63,7 +64,6 @@ interface Shockwave {
   progress: number // 0..1
   radius: number
 }
-const KNOCK_DURATION = 700
 
 // Ease out back: overshoots a little so the new sun pops in
 const easeOutBack = (t: number) => 1 + 2.7 * (t - 1) ** 3 + 1.7 * (t - 1) ** 2
@@ -170,6 +170,8 @@ export function initFooterGame() {
 
   // Lights the letter and knocks it along the shot's direction of travel
   const hitLetter = (letter: SVGPathElement, directionX: number, directionY: number) => {
+    const wasLit = litLetters.has(letter)
+
     letter.classList.add('is-lit')
     litLetters.add(letter)
     if (!reducedMotion)
@@ -185,7 +187,8 @@ export function initFooterGame() {
         ],
         { duration: KNOCK_DURATION, easing: 'cubic-bezier(.2,.8,.2,1)' }
       )
-    if (litLetters.size === letters.length) setTimeout(celebrate, CELEBRATION.delay)
+    // Hitting a letter again while all seven are lit would queue a second reset that wipes the next round's letters
+    if (!wasLit && litLetters.size === letters.length) setTimeout(celebrate, CELEBRATION.delay)
   }
 
   const land = (shot: Shot, x: number, y: number, unit: number) => {

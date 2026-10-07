@@ -1,5 +1,5 @@
 // Custom cursor: the i-dot sun with a trailing orbit ring (fine pointers only)
-import type { Vec2 } from '@/scripts/math'
+import { damp, type Vec2 } from '@/scripts/math'
 
 // Over these yellow or light fills the dot turns navy so it never disappears
 const LIGHT_FILL_SELECTOR =
@@ -40,8 +40,7 @@ export function initCursor() {
 
   const render = (now: number) => {
     const dt = Math.min(MAX_FRAME_TIME, (now - (lastFrameAt || now - 16)) / 1000)
-    // Same trail at any frame rate
-    const catchUp = reducedMotion ? 1 : 1 - Math.exp(-dt * TRAIL_RATE)
+    const catchUp = reducedMotion ? 1 : damp(TRAIL_RATE, dt)
 
     lastFrameAt = now
     ringPosition = [

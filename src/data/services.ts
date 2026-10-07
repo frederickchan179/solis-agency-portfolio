@@ -5,6 +5,17 @@ export interface Service {
   tags: string[]
 }
 
+// Section titles are split into the lines they break on
+export const whatWeDo = {
+  title: ['What', 'We Do'],
+  text: 'We work closely with independent digital agencies around the world to bring visually stunning designs and interactive concepts to life.'
+}
+
+export const letsTalk = {
+  title: ["Let's", 'talk'],
+  text: "Need a hand with any of the above? Shoot us a short email and we'll jump on a quick call or chat with you to discuss your engineering needs."
+}
+
 export const services: Service[] = [
   {
     id: 'svc-1',
