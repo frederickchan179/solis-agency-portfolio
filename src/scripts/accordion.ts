@@ -9,30 +9,33 @@ function setOpen(accordion: Element, isOpen: boolean) {
   accordion.querySelector('.accordion-trigger')?.setAttribute('aria-expanded', String(isOpen))
 }
 
+const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
+
+const isMouse = () => matchMedia('(hover: hover) and (pointer: fine)').matches
+
+const headerBottom = () => document.getElementById('site-header')?.getBoundingClientRect().bottom ?? 0
+
 // Where the top of the opened row should land: centred in the space below the header, or just below the header when
 // the row is taller than the screen
 function revealTop(accordion: Element, trigger: HTMLElement) {
   const rowHeight = trigger.offsetHeight + (accordion.querySelector('.accordion-inner')?.scrollHeight ?? 0)
-  const headerBottom = document.getElementById('site-header')?.getBoundingClientRect().bottom ?? 0
-  const centredTop = headerBottom + (window.innerHeight - headerBottom - rowHeight) / 2
+  const belowHeader = headerBottom()
+  const centredTop = belowHeader + (window.innerHeight - belowHeader - rowHeight) / 2
 
-  return Math.max(headerBottom + VIEW_MARGIN, centredTop)
+  return Math.max(belowHeader + VIEW_MARGIN, centredTop)
 }
 
 // Centres the opened row with one native smooth scroll. The panel grows below the trigger, so nothing else moves the
 // row while the browser scrolls.
 function revealRow(accordion: Element, trigger: HTMLElement) {
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
-
   window.scrollBy({
     top: trigger.getBoundingClientRect().top - revealTop(accordion, trigger),
-    behavior: reducedMotion ? 'instant' : 'smooth'
+    behavior: prefersReducedMotion() ? 'instant' : 'smooth'
   })
 }
 
-// Touch screens and reduced motion: a row closing above the tapped one shuts at once, and the page scrolls by the height it lost in the
-// same frame, so the tapped row stays under the finger. Correcting the scroll on every frame instead renders a frame
-// late on iOS Safari, so the page shakes.
+// Reduced motion, and touch when sliding would carry the tapped row under the header: a row closing above it shuts at
+// once, and the page scrolls by the height it lost in the same frame, so the tapped row stays under the finger
 function snapRowAbove(openRow: Element, accordion: Element, trigger: HTMLElement) {
   const topBefore = trigger.getBoundingClientRect().top
 
@@ -44,7 +47,7 @@ function snapRowAbove(openRow: Element, accordion: Element, trigger: HTMLElement
   revealRow(accordion, trigger)
 }
 
-// Mouse: the row above animates shut while the page scrolls on every frame, so the tapped row glides to its place
+// Mouse: the row above animates shut while the page scrolls on every frame, so the clicked row glides to its place
 // instead of jumping with the height lost above. The closing panel's own eased height paces the glide.
 function glideRowAbove(openRow: Element, accordion: Element, trigger: HTMLElement) {
   const closingPanel = openRow.querySelector<HTMLElement>('.accordion-panel')
@@ -89,10 +92,23 @@ function glideRowAbove(openRow: Element, accordion: Element, trigger: HTMLElemen
   frame = requestAnimationFrame(follow)
 }
 
-function canGlide() {
-  return (
-    matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
+// Touch: the row above animates shut and the tapped row slides up with it, while one native smooth scroll, if needed,
+// carries it the rest of the way. Correcting the scroll on every frame (the glide) renders a frame late on iOS
+// Safari, so the page shakes.
+function slideRowAbove(openRow: Element, accordion: Element, trigger: HTMLElement) {
+  const closingHeight = openRow.querySelector<HTMLElement>('.accordion-panel')?.offsetHeight ?? 0
+  const topAfterClose = trigger.getBoundingClientRect().top - closingHeight
+
+  if (topAfterClose < headerBottom() + VIEW_MARGIN) {
+    snapRowAbove(openRow, accordion, trigger)
+
+    return
+  }
+
+  setOpen(openRow, false)
+  setOpen(accordion, true)
+  // Only ever moves the row further up: pulling it back down while the row above shrinks would make it bounce
+  window.scrollBy({ top: Math.max(0, topAfterClose - revealTop(accordion, trigger)), behavior: 'smooth' })
 }
 
 // Services and open positions: one row per list is open at a time
@@ -118,10 +134,12 @@ export function initAccordions() {
         if (!openRowAbove) {
           setOpen(accordion, true)
           revealRow(accordion, button)
-        } else if (canGlide()) {
+        } else if (prefersReducedMotion()) {
+          snapRowAbove(openRowAbove, accordion, button)
+        } else if (isMouse()) {
           glideRowAbove(openRowAbove, accordion, button)
         } else {
-          snapRowAbove(openRowAbove, accordion, button)
+          slideRowAbove(openRowAbove, accordion, button)
         }
 
         return
